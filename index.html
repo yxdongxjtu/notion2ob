@@ -2,18 +2,37 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Reditecting</title>
+        <title>Redirecting</title>
     </head>
     <body>
-        Reditecting...
+        <p>Redirecting...</p>
+        <div id="fallback" style="display: none;">
+            <p>If you are not redirected automatically, click the link below:</p>
+            <a id="fallback-link" href="#"></a>
+        </div>
     </body>
     <script>
-        if (window.location.search == "") {
-            window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+        if (window.location.search) {
+            // Get the target URL from the query string
+            const targetUrl = decodeURIComponent(window.location.search.substring(1));
+
+            // Set up the fallback link in case automatic redirect fails
+            const fallbackLink = document.getElementById('fallback-link');
+            fallbackLink.href = targetUrl;
+            fallbackLink.textContent = targetUrl;
+
+            // Attempt to redirect. This may be blocked by the browser.
+            window.location.href = targetUrl;
+
+            // If the redirect is blocked, the page will remain open.
+            // After a short delay, show the fallback link.
+            setTimeout(() => {
+                document.querySelector('p').style.display = 'none';
+                document.getElementById('fallback').style.display = 'block';
+            }, 1000);
         } else {
-            const queryString = window.location.search;
-            window.location.href = queryString.split("://")[0].substr(1) + "://" + queryString.split("://")[1];
-            window.close();
-        };
+            // If no query string, redirect to the GitHub repository
+            window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+        }
     </script>
 </html>
