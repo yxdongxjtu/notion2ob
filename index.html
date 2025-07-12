@@ -11,6 +11,21 @@
         <p>Redirecting to your app...</p>
     </body>
     <script>
+        // Flag to prevent closing if the redirect fails
+        let redirectInitiated = false;
+        
+        // When the window loses focus (e.g., when the "Open App?" dialog appears,
+        // or the app itself opens), we assume the redirect was successful and close the tab.
+        window.onblur = function() {
+            if (redirectInitiated) {
+                // A small delay can help ensure the handoff to the OS is complete.
+                // 200ms is usually enough without being noticeable.
+                setTimeout(function() {
+                    window.close();
+                }, 200);
+            }
+        };
+        
         // Check if there is a query string (anything after '?')
         if (window.location.search) {
             try {
