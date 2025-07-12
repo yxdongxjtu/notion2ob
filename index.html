@@ -3,17 +3,23 @@
     <head>
         <meta charset="utf-8">
         <title>Redirecting...</title>
-        <!-- Add a meta tag to attempt an immediate redirect. This can be faster for some browsers. -->
-        <meta http-equiv="refresh" content="0; url=https://github.com/yxdongxjtu/notion2ob">
+
+        <!-- 
+          IMPORTANT: Add these meta tags to prevent browser caching.
+          This ensures the script runs fresh on every visit, fixing the "second click" bug.
+        -->
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+        <meta http-equiv="Pragma" content="no-cache" />
+        <meta http-equiv="Expires" content="0" />
     </head>
     <body>
-        <p>If you are not redirected automatically, <a href="https://github.com/yxdongxjtu/notion2ob">click here</a>.</p>
-        <p>Redirecting to your app...</p>
+        <p>Redirecting to your application...</p>
+        <p>This tab will close automatically.</p>
     </body>
     <script>
         // Flag to prevent closing if the redirect fails
         let redirectInitiated = false;
-        
+
         // When the window loses focus (e.g., when the "Open App?" dialog appears,
         // or the app itself opens), we assume the redirect was successful and close the tab.
         window.onblur = function() {
@@ -25,7 +31,7 @@
                 }, 200);
             }
         };
-        
+
         // Check if there is a query string (anything after '?')
         if (window.location.search) {
             try {
