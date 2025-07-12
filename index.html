@@ -2,18 +2,43 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Reditecting</title>
+        <title>Redirecting...</title>
+        <!-- Add a meta tag to attempt an immediate redirect. This can be faster for some browsers. -->
+        <meta http-equiv="refresh" content="0; url=https://github.com/yxdongxjtu/notion2ob">
     </head>
     <body>
-        Reditecting...
+        <p>If you are not redirected automatically, <a href="https://github.com/yxdongxjtu/notion2ob">click here</a>.</p>
+        <p>Redirecting to your app...</p>
     </body>
     <script>
-        if (window.location.search == "") {
-            window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+        // Check if there is a query string (anything after '?')
+        if (window.location.search) {
+            try {
+                // The query string includes the leading '?'. We slice it off (from the 1st character to the end).
+                // Then, we decode it to handle special characters like ':' and '/' that get URL-encoded.
+                const targetURI = decodeURIComponent(window.location.search.slice(1));
+
+                // A simple validation to ensure we're not redirecting to something obviously wrong.
+                // This checks if the decoded string contains '://', which all URIs will have.
+                if (targetURI.includes("://")) {
+                    // Redirect to the decoded custom URI.
+                    window.location.href = targetURI;
+                } else {
+                    // If the query is invalid, you could show an error or just do nothing.
+                    console.error("Invalid URI in query string:", targetURI);
+                    document.body.innerText = "Error: Invalid URI provided in the link.";
+                }
+
+            } catch (e) {
+                // This catches potential errors from decodeURIComponent if the URI is malformed.
+                console.error("Failed to decode URI:", e);
+                document.body.innerText = "Error: Could not process the provided link.";
+            }
         } else {
-            const queryString = window.location.search;
-            window.location.href = queryString.split("://")[0].substr(1) + "://" + queryString.split("://")[1];
-            window.close();
-        };
+            // If there's no query string, redirect to the project's GitHub page.
+            // The <meta http-equiv="refresh"> tag above already attempts this,
+            // but this script is a reliable fallback.
+            window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+        }
     </script>
 </html>
