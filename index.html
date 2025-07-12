@@ -3,11 +3,8 @@
     <head>
         <meta charset="utf-8">
         <title>Redirecting...</title>
-
-        <!-- 
-          IMPORTANT: Add these meta tags to prevent browser caching.
-          This ensures the script runs fresh on every visit, fixing the "second click" bug.
-        -->
+        
+        <!-- Keep these as a best practice for secondary defense -->
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
@@ -17,49 +14,56 @@
         <p>This tab will close automatically.</p>
     </body>
     <script>
-        // Flag to prevent closing if the redirect fails
-        let redirectInitiated = false;
+        // --- The Ultimate Cache-Busting Logic ---
+        // We use a unique parameter to force the browser to re-run the script.
+        const urlParams = new URLSearchParams(window.location.search);
 
-        // When the window loses focus (e.g., when the "Open App?" dialog appears,
-        // or the app itself opens), we assume the redirect was successful and close the tab.
-        window.onblur = function() {
-            if (redirectInitiated) {
-                // A small delay can help ensure the handoff to the OS is complete.
-                // 200ms is usually enough without being noticeable.
-                setTimeout(function() {
-                    window.close();
-                }, 200);
-            }
-        };
-
-        // Check if there is a query string (anything after '?')
-        if (window.location.search) {
-            try {
-                // The query string includes the leading '?'. We slice it off (from the 1st character to the end).
-                // Then, we decode it to handle special characters like ':' and '/' that get URL-encoded.
-                const targetURI = decodeURIComponent(window.location.search.slice(1));
-
-                // A simple validation to ensure we're not redirecting to something obviously wrong.
-                // This checks if the decoded string contains '://', which all URIs will have.
-                if (targetURI.includes("://")) {
-                    // Redirect to the decoded custom URI.
-                    window.location.href = targetURI;
-                } else {
-                    // If the query is invalid, you could show an error or just do nothing.
-                    console.error("Invalid URI in query string:", targetURI);
-                    document.body.innerText = "Error: Invalid URI provided in the link.";
-                }
-
-            } catch (e) {
-                // This catches potential errors from decodeURIComponent if the URI is malformed.
-                console.error("Failed to decode URI:", e);
-                document.body.innerText = "Error: Could not process the provided link.";
-            }
+        if (!urlParams.has('cache_bust')) {
+            // If the marker isn't here, this might be a cached load.
+            // Immediately reload the page with the unique marker.
+            // We use location.replace to avoid creating a back-button entry.
+            let newUrl = window.location.href;
+            // Append the parameter correctly whether a '?' already exists or not
+            newUrl += (window.location.search ? '&' : '?') + 'cache_bust=' + new Date().getTime();
+            window.location.replace(newUrl);
         } else {
-            // If there's no query string, redirect to the project's GitHub page.
-            // The <meta http-equiv="refresh"> tag above already attempts this,
-            // but this script is a reliable fallback.
-            window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+            // --- This code block only runs on the fresh, cache-busted load ---
+            
+            let redirectInitiated = false;
+
+            window.onblur = function() {
+                if (redirectInitiated) {
+                    setTimeout(function() { window.close(); }, 200);
+                }
+            };
+
+            // Isolate the original custom URI by removing our cache_bust parameter.
+            let queryString = window.location.search;
+            const cacheBustIndex = queryString.indexOf('&cache_bust=');
+            if (cacheBustIndex !== -1) {
+                queryString = queryString.substring(0, cacheBustIndex);
+            }
+            
+            if (queryString && queryString.length > 1) { // Ensure there's a query besides our buster
+                try {
+                    // Slice off the leading '?' and decode the original URI
+                    const targetURI = decodeURIComponent(queryString.slice(1));
+
+                    if (targetURI.includes("://")) {
+                        redirectInitiated = true;
+                        window.location.href = targetURI;
+                    } else {
+                        // Invalid URI, redirect to the project page as a fallback
+                        window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+                    }
+                } catch (e) {
+                    console.error("Failed to decode URI:", e);
+                    window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+                }
+            } else {
+                // No query string found other than our buster, so redirect to the main project page.
+                window.location.href = "https://github.com/yxdongxjtu/notion2ob";
+            }
         }
     </script>
 </html>
